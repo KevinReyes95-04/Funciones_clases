@@ -1,0 +1,509 @@
+---
+title: "Taller 6 de Programación para SIG"
+author: "Kevin Orlando Reyes Mosquera"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-location: left
+    number-sections: true
+    theme: cosmo
+    code-fold: show
+    code-tools: true
+    code-copy: true
+    smooth-scroll: true
+    self-contained: true
+  pdf:
+    toc: true
+    number-sections: true
+    colorlinks: true
+execute:
+  echo: true
+  warning: false
+  message: false
+lang: es
+---
+
+<style>
+/* Fondo general y tipografía */
+body {
+  text-align: justify;
+  line-height: 1.7;
+}
+
+/* Títulos */
+h1, h2, h3 {
+  font-weight: 700;
+}
+
+h1 {
+  border-bottom: 3px solid #2c7fb8;
+  padding-bottom: 0.3rem;
+  margin-top: 1.2rem;
+}
+
+h2 {
+  color: #1f5f8b;
+  margin-top: 1.5rem;
+}
+
+h3 {
+  color: #2c7a7b;
+}
+
+/* Cajas personalizadas */
+.caja-suave {
+  background: #f7fbff;
+  border-left: 6px solid #2c7fb8;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.caja-verde {
+  background: #f3fbf6;
+  border-left: 6px solid #2ca25f;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.caja-morada {
+  background: #faf7ff;
+  border-left: 6px solid #7a4ebf;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* Código */
+pre, code {
+  border-radius: 8px;
+}
+
+pre code {
+  font-size: 0.95rem;
+}
+
+/* Tablas */
+table {
+  width: 100%;
+  margin: 1rem 0;
+}
+
+th {
+  background-color: #eaf4fb !important;
+}
+
+/* Bloques destacados */
+blockquote {
+  border-left: 5px solid #2c7fb8;
+  background: #f8fbfd;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+}
+</style>
+
+# Introducción
+
+En proyectos reales de geomática, muchas veces necesitamos reutilizar la misma lógica varias veces. Por ejemplo, si ya tenemos un cálculo para medir distancias entre puntos o una rutina para evaluar un predio, no tiene sentido copiar y pegar ese mismo código una y otra vez en distintas partes del proyecto.
+
+Ahí es donde entran las **funciones** y las **clases**. Las funciones nos permiten encapsular procesos concretos para reutilizarlos cuando sea necesario, mientras que las clases nos ayudan a representar objetos más complejos del mundo real, agrupando datos y comportamientos en una sola estructura.
+
+En este capítulo aprenderemos a organizar mejor la lógica de nuestros programas, de forma que el código sea más modular, más claro y también mucho más fácil de mantener a medida que el proyecto crece.
+
+::: {.callout-note title="Objetivos del taller" appearance="simple"}
+- Crear funciones reutilizables para automatizar cálculos espaciales recurrentes.
+- Manejar parámetros opcionales, valores por defecto y argumentos dinámicos.
+- Entender los principios básicos de la Programación Orientada a Objetos (POO) para modelar elementos del mundo real.
+:::
+
+::: {.callout-tip title="Idea central del capítulo" appearance="simple"}
+La meta de este taller no es solo que el código funcione, sino que quede bien organizado, sea reutilizable y se parezca más a la lógica de un problema real en SIG.
+:::
+
+# Ejercicio 1: El cazador de coordenadas (Funciones y abstracción)
+
+## Código desarrollado
+
+```{python}
+# -----------------------------------------------
+# Función para calcular el Bounding Box (BBOX)
+# -----------------------------------------------
+
+def calcular_bbox(coordenadas):
+    """
+    Calcula los límites geográficos (Bounding Box) de una lista de coordenadas.
+
+    Parámetros
+    ----------
+    coordenadas : list of tuple
+        Lista de coordenadas geográficas en formato (latitud, longitud).
+
+    Retorna
+    -------
+    tuple
+        Cuatro valores numéricos en el siguiente orden:
+        lat_min : float -> Latitud mínima encontrada
+        lat_max : float -> Latitud máxima encontrada
+        lon_min : float -> Longitud mínima encontrada
+        lon_max : float -> Longitud máxima encontrada
+    """
+
+    latitudes = [lat for lat, lon in coordenadas]
+    longitudes = [lon for lat, lon in coordenadas]
+
+    lat_min = min(latitudes)
+    lat_max = max(latitudes)
+    lon_min = min(longitudes)
+    lon_max = max(longitudes)
+
+    return lat_min, lat_max, lon_min, lon_max
+
+
+# -----------------------------------------------
+# Coordenadas de 10 principales ciudades de Colombia
+# -----------------------------------------------
+
+ciudades_colombia = [
+    ("Bogotá", 4.6097, -74.0817),
+    ("Medellín", 6.2442, -75.5812),
+    ("Cali", 3.4516, -76.5320),
+    ("Barranquilla", 10.9639, -74.7964),
+    ("Cartagena", 10.3910, -75.4794),
+    ("Bucaramanga", 7.1254, -73.1198),
+    ("Pereira", 4.8133, -75.6961),
+    ("Ibagué", 4.4389, -75.2322),
+    ("Popayán", 2.4448, -76.6147),
+    ("Cúcuta", 7.8891, -72.4967)
+]
+
+# Lista solo de coordenadas para calcular el BBOX
+coordenadas = [(lat, lon) for nombre, lat, lon in ciudades_colombia]
+
+# -----------------------------------------------
+# Uso de la función
+# -----------------------------------------------
+
+lat_min, lat_max, lon_min, lon_max = calcular_bbox(coordenadas)
+
+print("Latitud mínima:", lat_min)
+print("Latitud máxima:", lat_max)
+print("Longitud mínima:", lon_min)
+print("Longitud máxima:", lon_max)
+```
+
+```{python}
+# -----------------------------------------------
+# Mapa de puntos con Folium
+# -----------------------------------------------
+
+import folium
+
+# Centro aproximado del mapa
+centro_lat = sum(lat for _, lat, _ in ciudades_colombia) / len(ciudades_colombia)
+centro_lon = sum(lon for _, _, lon in ciudades_colombia) / len(ciudades_colombia)
+
+# Crear mapa
+mapa = folium.Map(location=[centro_lat, centro_lon], zoom_start=6, tiles="CartoDB positron")
+
+# Agregar marcadores de ciudades
+for nombre, lat, lon in ciudades_colombia:
+    folium.Marker(
+        location=[lat, lon],
+        popup=nombre,
+        tooltip=nombre
+    ).add_to(mapa)
+
+# Dibujar el Bounding Box
+folium.Rectangle(
+    bounds=[[lat_min, lon_min], [lat_max, lon_max]],
+    color="#2c7fb8",
+    weight=3,
+    fill=True,
+    fill_opacity=0.10,
+    popup="Bounding Box"
+).add_to(mapa)
+
+mapa
+```
+
+## Análisis del ejercicio
+
+::: {.callout-important title="Lectura del resultado" appearance="simple"}
+En este ejercicio construimos una función para calcular el Bounding Box de un conjunto de coordenadas. Dicho de una forma sencilla, el programa encuentra los límites mínimo y máximo de latitud y longitud para encerrar todos los puntos dentro de un mismo rectángulo geográfico.
+:::
+
+La función calcular_bbox() recibe una lista de coordenadas y devuelve cuatro valores clave: latitud mínima, latitud máxima, longitud mínima y longitud máxima. Esto resulta muy útil en SIG porque permite delimitar un área de interés, resumir la extensión espacial de unos datos o preparar su visualización en un mapa.
+
+Más allá del resultado numérico, lo importante de este ejercicio es la forma en que se organiza la lógica. En lugar de repetir el mismo procedimiento cada vez, se construyó una función que deja el cálculo resuelto en un solo lugar. Eso hace que el código sea más limpio, más entendible y mucho más fácil de reutilizar en un proyecto real.
+
+La visualización en Folium ayuda además a conectar el resultado del código con su interpretación espacial. Ya no solo vemos números en consola: también podemos ubicar las ciudades sobre un mapa y entender mejor cómo se distribuyen dentro del territorio colombiano.
+
+Sobre el Ejercicio 1 (Regla DRY y Pureza)
+Pregunta
+
+Explica con tus propias palabras qué es la regla DRY (Don’t Repeat Yourself). ¿Por qué es un riesgo para la mantenibilidad de un proyecto copiar y pegar la gran fórmula matemática de Haversine en múltiples partes de tu código en lugar de usar la función que creaste?
+
+Respuesta
+
+::: {.callout-tip title="Respuesta" appearance="simple"}
+La regla DRY significa, en palabras sencillas, que uno no debería andar repitiendo el mismo código una y otra vez dentro de un programa. La idea es escribir una solución una sola vez y luego reutilizarla cada vez que haga falta. Es como tener una receta de cocina que ya sabes que funciona bien: en vez de volver a inventarla cada vez que cocinas, simplemente usas la misma receta.
+
+El problema de copiar y pegar una fórmula grande como la de Haversine en muchas partes del código es que, si un día descubres un error o necesitas mejorar algo, te toca ir revisando pedazo por pedazo. Es como si tuvieras la misma receta de frijoles escrita en diez cuadernos distintos: si una medida estaba mal, tendrías que ir uno por uno corrigiéndolos, y es muy fácil que alguno quede mal actualizado.
+
+En cambio, si toda esa lógica está metida dentro de una función, todo queda guardado en un solo sitio. Es como tener la receta buena en un solo cuaderno principal: si la corriges una vez, ya todo lo que cocines después sale con la versión correcta. Por eso trabajar con funciones ayuda a que el código sea más ordenado, más claro y mucho más fácil de mantener con el tiempo.
+:::
+
+# Ejercicio 2: Modelando una ruta espacial (Clases e interacción)
+## Código desarrollado
+
+```{python}
+# -----------------------------------------------
+# Taller: Clases e interacción
+# -----------------------------------------------
+
+# 1. Importación de librerías
+import math
+
+
+# -----------------------------------------------
+# 2. Definición de la clase PuntoEspacial
+# -----------------------------------------------
+
+class PuntoEspacial:
+    """
+    Representa un punto geográfico con latitud, longitud y nombre.
+    Incluye un método para calcular la distancia hacia otro punto
+    usando la fórmula de Haversine.
+    """
+
+    def __init__(self, latitud, longitud, nombre="Punto"):
+        self.latitud = latitud
+        self.longitud = longitud
+        self.nombre = nombre
+
+    def __str__(self):
+        return f"{self.nombre} ({self.latitud}, {self.longitud})"
+
+    def distancia_hacia(self, otro_punto, radio=6371.0):
+        """
+        Calcula la distancia geodésica hacia otro PuntoEspacial.
+
+        Parámetros
+        ----------
+        otro_punto : PuntoEspacial
+        radio : float
+            Radio de la Tierra (6371 km por defecto)
+
+        Retorna
+        -------
+        float
+            Distancia entre los puntos.
+        """
+
+        lat1 = math.radians(self.latitud)
+        lon1 = math.radians(self.longitud)
+        lat2 = math.radians(otro_punto.latitud)
+        lon2 = math.radians(otro_punto.longitud)
+
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+
+        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+        return radio * c
+
+
+# -----------------------------------------------
+# 3. Definición de la clase RutaGeografica
+# -----------------------------------------------
+
+class RutaGeografica:
+    """
+    Representa una ruta compuesta por múltiples objetos PuntoEspacial.
+    """
+
+    def __init__(self, nombre):
+        self.nombre = nombre
+        self.puntos = []
+
+    def agregar_punto(self, punto):
+        """
+        Agrega un PuntoEspacial a la ruta.
+        """
+        if not isinstance(punto, PuntoEspacial):
+            raise TypeError("El objeto debe ser de tipo PuntoEspacial")
+
+        self.puntos.append(punto)
+
+    def medir_distancia_total(self):
+        """
+        Calcula la distancia total de la ruta.
+        """
+        distancia_total = 0
+
+        for i in range(len(self.puntos) - 1):
+            punto_actual = self.puntos[i]
+            punto_siguiente = self.puntos[i + 1]
+
+            distancia_total += punto_actual.distancia_hacia(punto_siguiente)
+
+        return distancia_total
+
+    def imprimir_distancias(self):
+        """
+        Imprime la distancia entre cada par de ciudades consecutivas.
+        """
+        for i in range(len(self.puntos) - 1):
+            punto_actual = self.puntos[i]
+            punto_siguiente = self.puntos[i + 1]
+
+            distancia = punto_actual.distancia_hacia(punto_siguiente)
+
+            print(f"Distancia de {punto_actual.nombre} a {punto_siguiente.nombre}: {distancia:.2f} km")
+
+
+# -----------------------------------------------
+# 4. Creación de puntos (ciudades)
+# -----------------------------------------------
+bogota = PuntoEspacial(4.6097, -74.0817, "Bogotá")
+medellin = PuntoEspacial(6.2442, -75.5812, "Medellín")
+cali = PuntoEspacial(3.4516, -76.5320, "Cali")
+barranquilla = PuntoEspacial(10.9639, -74.7964, "Barranquilla")
+cartagena = PuntoEspacial(10.3910, -75.4794, "Cartagena")
+bucaramanga = PuntoEspacial(7.1254, -73.1198, "Bucaramanga")
+pereira = PuntoEspacial(4.8133, -75.6961, "Pereira")
+ibague = PuntoEspacial(4.4389, -75.2322, "Ibagué")
+popayan = PuntoEspacial(2.4448, -76.6147, "Popayán")
+cucuta = PuntoEspacial(7.8891, -72.4967, "Cúcuta")
+
+
+# -----------------------------------------------
+# 5. Construcción de la ruta
+# -----------------------------------------------
+
+ruta_andes = RutaGeografica("Ruta de los Andes")
+
+ciudades = [
+    bogota, medellin, cali, barranquilla, cartagena,
+    bucaramanga, pereira, ibague, popayan, cucuta
+]
+
+for ciudad in ciudades:
+    ruta_andes.agregar_punto(ciudad)
+
+# -----------------------------------------------
+# 6. Ejecución
+# -----------------------------------------------
+
+print("Ruta:", ruta_andes.nombre)
+print()
+
+ruta_andes.imprimir_distancias()
+
+print()
+print("Distancia total de la ruta:", round(ruta_andes.medir_distancia_total(), 2), "km")
+```
+
+```{python}
+import folium
+
+# -----------------------------------------------
+# Crear lista de coordenadas de la ruta
+# -----------------------------------------------
+
+coordenadas_ruta = [(punto.latitud, punto.longitud) for punto in ruta_andes.puntos]
+
+# Centro aproximado del mapa
+centro_lat = sum(punto.latitud for punto in ruta_andes.puntos) / len(ruta_andes.puntos)
+centro_lon = sum(punto.longitud for punto in ruta_andes.puntos) / len(ruta_andes.puntos)
+
+# Crear mapa base
+mapa_ruta = folium.Map(location=[centro_lat, centro_lon], zoom_start=6, tiles="CartoDB positron")
+
+# Agregar marcadores para cada ciudad
+for i, punto in enumerate(ruta_andes.puntos):
+    if i == 0:
+        texto_popup = f"Inicio de la ruta: {punto.nombre}"
+        color_icono = "green"
+    elif i == len(ruta_andes.puntos) - 1:
+        texto_popup = f"Final de la ruta: {punto.nombre}"
+        color_icono = "red"
+    else:
+        texto_popup = punto.nombre
+        color_icono = "blue"
+
+    folium.Marker(
+        location=[punto.latitud, punto.longitud],
+        popup=texto_popup,
+        tooltip=punto.nombre,
+        icon=folium.Icon(color=color_icono)
+    ).add_to(mapa_ruta)
+
+# Dibujar la línea de la ruta
+folium.PolyLine(
+    locations=coordenadas_ruta,
+    weight=4,
+    opacity=0.8,
+    tooltip="Ruta de los Andes",
+    color="#7a4ebf"
+).add_to(mapa_ruta)
+
+mapa_ruta
+```
+
+Análisis de la visualización
+
+El mapa interactivo permite ver de forma mucho más clara cómo se distribuyen espacialmente las ciudades que forman la ruta. Mientras en consola observamos los nombres y las distancias, en el mapa ya se puede interpretar el recorrido como una secuencia geográfica real.
+
+Además, la línea que une los puntos ayuda a entender que no se trata solo de ciudades aisladas, sino de una ruta construida a partir de objetos espaciales conectados entre sí. Esto hace que el ejercicio no solo sirva para practicar clases y métodos, sino también para relacionar la programación con una representación visual mucho más cercana al análisis SIG.
+
+## Análisis del ejercicio
+
+::: {.callout-important title="Lectura del resultado" appearance="simple"}
+En este segundo ejercicio ya no trabajamos solo con funciones sueltas, sino con clases que permiten representar objetos más cercanos a situaciones del mundo real.
+:::
+
+Para este caso, cada ciudad se modela como un objeto de la clase PuntoEspacial, que guarda su latitud, su longitud y su nombre, y además sabe calcular la distancia hacia otro punto. Luego aparece la clase RutaGeografica, que reúne varios puntos y es capaz de medir la distancia total del recorrido.
+
+Lo más interesante aquí es que la lógica queda mucho mejor organizada. La distancia entre ciudades no se calcula de manera desordenada por fuera del problema, sino que cada punto “sabe” cómo medir su distancia hacia otro. A su vez, la ruta “sabe” cómo sumar todos esos tramos. Eso hace que el código se sienta más natural y más coherente con la forma en que uno entiende el problema en la vida real.
+
+En términos prácticos, esta manera de programar ayuda mucho cuando los proyectos crecen. En lugar de tener funciones dispersas y datos sueltos por todos lados, trabajamos con objetos que reúnen tanto la información como las acciones que pueden realizar. Eso vuelve el programa más claro, más escalable y más fácil de mantener.
+
+## Sobre el Ejercicio 2 (Paradigmas de POO)
+Pregunta
+
+Si resolviste (o resolvieras) este ejercicio en Python, ¿dónde “viven” físicamente los métodos analíticos como medir_distancia_total()? Contrasta esta filosofía con el enfoque del Sistema S3 de R. Usa la analogía del “Molde” vs el “Post-it” vista en clase para explicarlo.
+
+Respuesta
+
+::: {.callout-note title="Respuesta" appearance="simple"}
+Si resolvemos este ejercicio en Python, los métodos analíticos como medir_distancia_total() viven dentro de la clase RutaGeografica. Eso quiere decir que el método forma parte del mismo molde con el que se construye el objeto. En otras palabras, la lógica para medir la distancia total no está separada de la ruta, sino que viene incorporada en ella desde el diseño.
+
+Usando la analogía vista en clase, en Python la clase funciona como un molde. Ese molde no solo define la forma del objeto, es decir, qué datos tiene, sino también qué cosas sabe hacer. Por eso, cuando creamos una ruta, esa ruta ya trae integrada la capacidad de calcular su distancia total; no hace falta ir a pegarle una función por fuera.
+
+En cambio, en el sistema S3 de R, la lógica se parece más a un post-it. El objeto puede tener una clase, sí, pero los métodos no viven dentro de él como en Python. Más bien se definen por fuera, como funciones genéricas que R aplica según el tipo de objeto con el que esté trabajando. Es decir, el comportamiento no viene metido dentro del molde, sino que se le asigna desde afuera, como si después de hacer una galleta le pegaras una nota encima diciendo qué hacer con ella.
+:::
+
+# Pregunta general (Eficiencia y motores)
+Pregunta
+
+Imagina que tu RutaGeografica tiene 5 millones de puntos recolectados por un GPS y necesitas calcular la distancia total. Si usaras Julia, explica brevemente cómo la combinación del Despacho Múltiple y la Compilación JIT lograría ejecutar este cálculo masivo mucho más rápido que el intérprete estándar de R.
+
+Respuesta
+
+::: {.callout-tip title="Respuesta" appearance="simple"}
+En un caso tan grande como una ruta con 5 millones de puntos, Julia suele ser mucho más rápida porque trabaja como si primero entendiera muy bien la tarea y luego armara una herramienta casi hecha a la medida para hacerla. El despacho múltiple le ayuda a decidir exactamente qué versión del cálculo usar según el tipo de datos que recibe, y la compilación JIT hace que, una vez arranca, el programa se ajuste para correr de una forma mucho más eficiente.
+
+Una metáfora sencilla sería esta: R intérprete se parece a un cocinero que va leyendo la receta paso a paso cada vez que prepara una galleta, mientras que Julia se parece más a un chef que primero estudia la receta, organiza la cocina, prepara el molde correcto y luego hace miles o millones de galletas mucho más rápido. Por eso, cuando el trabajo es enorme, Julia aprovecha mejor el tiempo y los recursos.
+:::
+
+# Conclusiones
+
+::: {.callout-important title="Cierre del taller" appearance="simple"}
+Este taller permitió pasar de una lógica básica basada en funciones a una forma de organización más estructurada mediante clases y objetos. En el primer ejercicio vimos cómo una función bien diseñada ayuda a evitar repeticiones innecesarias y a resolver cálculos espaciales de manera reutilizable. En el segundo, observamos cómo la Programación Orientada a Objetos permite representar mejor problemas reales, agrupando datos y comportamientos dentro de una misma estructura.
+
+Además, el uso de mapas interactivos con Folium ayudó a conectar la programación con la representación espacial, mostrando que el código no solo puede producir resultados numéricos, sino también apoyar la interpretación geográfica de una manera más visual y clara. En conjunto, estos ejercicios muestran cómo escribir mejor código también significa pensar mejor la lógica del problema.
+:::
